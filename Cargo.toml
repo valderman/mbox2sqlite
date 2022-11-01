@@ -1,0 +1,18 @@
+[package]
+name = "mbox2sqlite"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "~4.0", features = ["derive"] }
+mail-parser = "~0.7"
+rusqlite = "~0.28"
+
+[profile.release]
+opt-level = 2
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
