@@ -1,4 +1,4 @@
-use mail_parser::Message;
+use mail_parser::{Message, HeaderValue};
 
 pub struct Email {
     pub timestamp: Option<String>,
@@ -12,11 +12,23 @@ pub struct Email {
     pub gmail_labels: Option<String>
 }
 
+fn sender_as_string(sender: &HeaderValue) -> Option<String> {
+    match sender {
+        HeaderValue::Address(address) => {
+            let email = address.address.as_ref()?;
+            address.name.as_ref().map_or_else(||Some(format!("{}", email)), |name|
+                Some(format!("{} <{}>", name, email))
+            )
+        },
+        _ => None
+    }
+}
+
 impl Email {
     pub fn from(msg: &Message) -> Email {
         return Email {
             timestamp: msg.get_date().map(|it| it.to_rfc822()),
-            from: msg.get_from().as_text_ref().map(|it| String::from(it)),
+            from: sender_as_string(msg.get_from()),
             to: msg.get_to().as_text_ref().map(|it| String::from(it)),
             cc: msg.get_cc().as_text_ref().map(|it| String::from(it)),
             bcc: msg.get_bcc().as_text_ref().map(|it| String::from(it)),
